@@ -636,10 +636,8 @@
                     cleanAmount = '0'; // Mínimo es '0' (0,00)
                 }
             } else if (value.match(/[0-9]/)) {
-                // Limite a 8 dígitos (ej. 99999.99)
-                if (cleanAmount.length < 8) { 
-                    cleanAmount += value;
-                }
+                 // Sin límite: concatenamos siempre
+                 cleanAmount = (cleanAmount === '0') ? value : cleanAmount + value;
             }
             
             amount = cleanAmount;
