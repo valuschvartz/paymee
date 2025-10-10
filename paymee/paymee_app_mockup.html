@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paymee SoftPOS App Mockup (Fintech)</title>
+    <!-- Carga de Tailwind CSS (se requiere Internet para la carga inicial) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración del API Key para Gemini (DEBE SER REEMPLAZADA) -->
+    <script>
+        const GEMINI_API_KEY = "TU_CLAVE_DE_API_AQUÍ"; // Reemplaza con tu clave real de Google AI Studio
+    </script>
+    <style>
+        /* Configuracion de colores de Tailwind y variables CSS */
+        :root {
+            --color-coral: #FF6B81;
+            --color-cyan: #A5E4FF;
+            --color-lavender: #D9C6FF;
+            --color-smoke: #F7F8FA;
+            --color-dark: #0A0A0A;
+            --color-card-bg: #FFFFFF; /* Fondo de tarjetas en blanco para contraste en UI */
+        }
+
+        /* Configuracion de la fuente Inter (se carga si hay conexión) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Asegura que el cuerpo ocupe todo el viewport */
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; 
+        }
+        
+        /* RESPONSIVENESS: Contenedor principal que simula el celular */
+        .phone-container {
+            width: 390px; /* Tamaño ideal en desktop */
+            height: 844px; /* Tamaño ideal en desktop */
+            max-width: 100vw;
+            max-height: 100vh;
+            overflow: hidden;
+            background-color: var(--color-dark);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            border-radius: 40px;
+            position: relative;
+            /* Adapta el contenedor si el viewport es más pequeño que el tamaño ideal */
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 390px), (max-height: 844px) {
+            .phone-container {
+                width: 100%;
+                height: 100%;
+                border-radius: 0; /* Elimina bordes redondeados en vista móvil completa */
+            }
+        }
+        
+        /* Contenedor de cada pantalla de la app */
+        .app-screen {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            background-color: #ffffff;
+            color: #1f2937; /* Texto principal oscuro */
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 70px;
+            overflow-y: auto; /* Permite el scroll en el contenido */
+        }
+        
+        .app-screen.active {
+            transform: translateX(0);
+        }
+        
+        /* Estilos de la barra de navegación */
+        .paymee-navbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: var(--color-card-bg);
+            border-top: 1px solid #f0f0f0;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.03);
+            z-index: 10;
+        }
+
+        /* Utilitarios de colores y degradados */
+        .bg-paymee-gradient {
+            background: linear-gradient(135deg, var(--color-coral) 0%, var(--color-cyan) 100%);
+        }
+        .text-paymee-cyan { color: var(--color-cyan); }
+        .text-paymee-coral { color: var(--color-coral); }
+        .text-paymee-lavender { color: var(--color-lavender); }
+        
+        /* Efecto de Card y Sombra */
+        .paymee-card {
+            background-color: var(--color-card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.15s ease;
+        }
+        
+        /* Animaciones */
+        @keyframes pulse-logo {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.03); opacity: 0.9; }
+        }
+        .animate-pulse-logo { animation: pulse-logo 2s infinite ease-in-out; }
+        
+        @keyframes nfc-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(165, 228, 255, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(165, 228, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(165, 228, 255, 0); }
+        }
+        .nfc-pulsing-circle { animation: nfc-pulse 1.5s infinite; }
+
+        /* Estilo de texto con degradado para el logo */
+        .paymee-logo-text {
+            background-image: linear-gradient(to right, var(--color-coral), var(--color-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        /* Efecto al tocar/clickar botones */
+        .tap-effect:active { transform: scale(0.98); }
+        
+        /* Estilos del modal de IA */
+        #gemini-modal-content {
+            background-color: var(--color-card-bg);
+        }
+        
+        /* Estilos del botón de teclado */
+        .key-button {
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-container" id="phone-container">
+        <!-- SE ELIMINA LA DEFINICIÓN DEL LOGO SVG -->
+
+        <!-- SPASH SCREEN -->
+        <div id="splash-screen" class="app-screen active !bg-white transition-all duration-500 ease-in-out">
+            <div class="flex flex-col items-center justify-center h-full bg-paymee-gradient">
+                <div class="bg-white p-6 rounded-3xl shadow-xl">
+                    <!-- LOGO ICONO PNG -->
+                    <img src="logo.png" alt="Paymee Logo" class="w-24 h-24 animate-pulse-logo">
+                </div>
+                <div class="paymee-logo-text mt-6">Paymee</div>
+                <div class="text-white text-sm font-light tracking-widest mt-2 opacity-90">COBROS FÁCILES. SIN CONTACTO.</div>
+            </div>
+        </div>
+
+        <!-- WELCOME SCREEN -->
+        <div id="welcome" class="app-screen justify-center items-center">
+            <div class="flex flex-col items-center p-8 text-center">
+                <!-- LOGO ICONO PNG -->
+                <img src="logo.png" alt="Paymee Logo" class="w-20 h-20">
+                
+                <h1 class="text-3xl font-bold mt-8 text-gray-800">¡Bienvenido a Paymee!</h1>
+                <p class="text-gray-500 mt-4">La manera más rápida y segura de aceptar pagos con QR y Tap-to-Phone.</p>
+                <button onclick="renderScreen('home-dashboard')" class="w-full mt-12 py-3 text-white font-semibold rounded-xl bg-paymee-gradient shadow-lg shadow-pink-300/50 hover:scale-[0.99] transition duration-200 tap-effect">
+                    Comenzar
+                </button>
+            </div>
+        </div>
+
+        <!-- HOME DASHBOARD -->
+        <div id="home-dashboard" class="app-screen p-6 overflow-y-auto">
+            <div class="mb-6 pt-4">
+                <h2 class="text-xl font-bold text-gray-800">Hola, Axel 👋</h2>
+                <p class="text-sm text-gray-500">Resumen de tu día de cobros.</p>
+            </div>
+
+            <!-- Tarjeta de Ganancias de Hoy -->
+            <div class="paymee-card bg-paymee-gradient text-white p-6 mb-6 hover:scale-[0.99] transition duration-150 tap-effect">
+                <p class="text-sm opacity-80">Ganancias de Hoy</p>
+                <h3 class="text-4xl font-extrabold mt-1">$ 15.650,00</h3>
+                <div class="flex justify-between items-center mt-4 text-xs opacity-80">
+                    <span>3 Transacciones</span>
+                    <span class="bg-white/20 px-2 py-0.5 rounded-full">+12% vs ayer</span>
+                </div>
+            </div>
+
+            <!-- Botones de Acción Rápida -->
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <button onclick="renderScreen('collect-amount')" class="paymee-card p-4 flex flex-col items-start hover:scale-[0.98] transition duration-150 tap-effect">
+                    <svg class="w-8 h-8 text-paymee-coral" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2M12 1c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z"></path></svg>
+                    <span class="mt-2 text-md font-semibold text-gray-800">Cobrar</span>
+                    <span class="text-xs text-gray-400">QR / NFC / Link</span>
+                </button>
+                <button onclick="renderScreen('daily-summary')" class="paymee-card p-4 flex flex-col items-start hover:scale-[0.98] transition duration-150 tap-effect">
+                    <svg class="w-8 h-8 text-paymee-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-4 18h.01M3 21h18a2 2 0 002-2V7a2 2 0 00-2-2H3a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span class="mt-2 text-md font-semibold text-gray-800">Resumen</span>
+                    <span class="text-xs text-gray-400">Ventas y métricas</span>
+                </button>
+            </div>
+
+            <!-- Últimas Transacciones -->
+            <h4 class="text-lg font-semibold text-gray-800 mb-3">Actividad Reciente</h4>
+            <div class="space-y-3">
+                <!-- Item 1 -->
+                <div class="paymee-card p-4 flex justify-between items-center hover:scale-[0.99] transition duration-150 tap-effect">
+                    <div class="flex items-center">
+                        <span class="w-10 h-10 flex items-center justify-center rounded-full bg-paymee-lavender/50 text-paymee-lavender font-bold mr-3">QR</span>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">Cobro con QR</p>
+                            <p class="text-xs text-gray-400">Hace 5 minutos</p>
+                        </div>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">$ 5.800,00</span>
+                </div>
+                <!-- Item 2 -->
+                <div class="paymee-card p-4 flex justify-between items-center hover:scale-[0.99] transition duration-150 tap-effect">
+                    <div class="flex items-center">
+                        <span class="w-10 h-10 flex items-center justify-center rounded-full bg-paymee-cyan/50 text-paymee-cyan font-bold mr-3">NFC</span>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">Cobro Tap-to-Phone</p>
+                            <p class="text-xs text-gray-400">Hace 3 horas</p>
+                        </div>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">$ 9.850,00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- INGRESAR MONTO (Calculadora) -->
+        <div id="collect-amount" class="app-screen flex-col justify-between">
+            <!-- Header -->
+            <div class="p-6 pt-4">
+                <div class="flex items-center mb-6">
+                    <button onclick="renderScreen('home-dashboard')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                    <h2 class="text-xl font-bold text-gray-800 ml-4">Ingresa el Monto</h2>
+                </div>
+                <div class="text-center mt-12">
+                    <span class="text-4xl font-extrabold text-gray-800" id="display-amount">$ 0,00</span>
+                </div>
+            </div>
+
+            <!-- Teclado Numérico (Simulado) -->
+            <div class="w-full">
+                <div class="grid grid-cols-3 gap-1 p-4">
+                    <!-- Fila 1 -->
+                    <button data-value="1" class="key-button py-4 text-3xl font-light text-gray-800 hover:bg-gray-100 rounded-lg transition duration-150 tap-effect">1</button>
+                    <button data-value="2" class="key-button py-4 text-3xl font-light text-gray-800 hover:bg-gray-100 rounded-lg transition duration-150 tap-effect">2</button>
+                    <button data-value="3" class="key-button py-4 text-3xl font-light text-gray-800 hover:bg-gray-100 rounded-lg transition duration-150 tap-effect">3</button>
+                    <!-- Fila 2 -->
+                    <button data-value="4" class="key-button py-4 text-3xl font-light text-gray-800 hover:bg-gray-100 rounded-lg transition duration-150 tap-effect">4</button>
+                    <button data-value="5" class="key-button py-4 text-3xl font-light text-gray-800 hover:bg-gray-100 rounded-lg transition duration-150 tap-effect">5</button>
+                    <button data-value="6" class="key-button py-4 text-3xl font-light text-gray-800 hover:bg-gray-100 rounded-lg transition duration-150 tap-effect">6</button>
+                    <!-- Fila 3 -->
+                    <button data-value="7" class="key-button py-4 text-3xl font-light text-gray-800 hover:bg-gray-100 rounded-lg transition duration-150 tap-effect">7</button>
+                    <button data-value="8" class="key-button py-4 text-3xl font-light text-gray-800 hover:bg-gray-100 rounded-lg transition duration-150 tap-effect">8</button>
+                    <button data-value="9" class="key-button py-4 text-3xl font-light text-gray-800 hover:bg-gray-100 rounded-lg transition duration-150 tap-effect">9</button>
+                    <!-- Fila 4 -->
+                    <button data-value="." class="key-button py-4 text-3xl font-light text-gray-800 hover:bg-gray-100 rounded-lg transition duration-150 tap-effect">.</button>
+                    <button data-value="0" class="key-button py-4 text-3xl font-light text-gray-800 hover:bg-gray-100 rounded-lg transition duration-150 tap-effect">0</button>
+                    <button data-action="delete" class="key-button py-4 text-3xl font-light text-gray-800 hover:bg-gray-100 rounded-lg transition duration-150 tap-effect flex justify-center items-center">
+                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l-2-2m2 2h4M7 6H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M7 6v4a2 2 0 002 2h2"></path></svg>
+                    </button>
+                </div>
+                <!-- Botón Generar Cobro -->
+                <div class="p-4">
+                    <button id="collect-generate-btn" onclick="renderScreen('collect-method')" class="w-full py-4 text-white font-semibold rounded-xl bg-gray-400 cursor-not-allowed transition duration-300 tap-effect" disabled>
+                        Generar Cobro
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODO DE COBRO (QR/NFC) -->
+        <div id="collect-method" class="app-screen p-6">
+            <div class="flex items-center mb-8 pt-4">
+                <button onclick="renderScreen('collect-amount')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                <h2 class="text-xl font-bold text-gray-800 ml-4">Selecciona el Método</h2>
+            </div>
+
+            <div class="paymee-card p-6 mb-8 bg-paymee-gradient text-white">
+                <p class="text-sm opacity-80">Monto a Cobrar</p>
+                <h3 class="text-3xl font-extrabold" id="method-amount-display">$ 0,00</h3>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="renderScreen('qr-sim')" class="paymee-card p-4 flex flex-col items-center justify-center h-36 hover:bg-gray-50 hover:scale-[0.98] transition duration-150 tap-effect">
+                    <svg class="w-10 h-10 text-paymee-coral" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8v8m0-8v.01"></path></svg>
+                    <span class="mt-2 text-md font-semibold text-gray-800">Código QR</span>
+                </button>
+                <button onclick="renderScreen('nfc-sim')" class="paymee-card p-4 flex flex-col items-center justify-center h-36 hover:bg-gray-50 hover:scale-[0.98] transition duration-150 tap-effect">
+                    <svg class="w-10 h-10 text-paymee-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <span class="mt-2 text-md font-semibold text-gray-800">Tap-to-Phone</span>
+                </button>
+            </div>
+            
+        </div>
+
+        <!-- COBRO QR SIMULADO -->
+        <div id="qr-sim" class="app-screen p-6 items-center justify-start">
+            <div class="flex items-center w-full mb-8 pt-4">
+                <button onclick="renderScreen('collect-method')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                <h2 class="text-xl font-bold text-gray-800 ml-4">Cobro con QR</h2>
+            </div>
+            
+            <div class="text-center mb-8">
+                <p class="text-lg text-gray-500">Monto Fijo</p>
+                <h3 class="text-4xl font-bold text-gray-800" id="qr-amount-display">$ 0,00</h3>
+            </div>
+            
+            <!-- Simulación de QR (Placeholder) -->
+            <div class="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center shadow-xl">
+                <svg class="w-16 h-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354l-7 7m0 0l-7 7m7-7v14"></path></svg>
+            </div>
+            
+            <p class="text-sm text-gray-500 mt-6 text-center">Escanea este código con cualquier billetera virtual.</p>
+
+            <button onclick="renderScreen('success')" class="w-5/6 mt-12 py-3 text-white font-semibold rounded-xl bg-paymee-gradient shadow-lg shadow-pink-300/50 hover:scale-[0.99] transition duration-200 tap-effect">
+                Simular Pago Exitoso
+            </button>
+        </div>
+
+        <!-- COBRO NFC SIMULADO -->
+        <div id="nfc-sim" class="app-screen p-6 items-center justify-start">
+            <div class="flex items-center w-full mb-8 pt-4">
+                <button onclick="renderScreen('collect-method')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                <h2 class="text-xl font-bold text-gray-800 ml-4">Tap-to-Phone (NFC)</h2>
+            </div>
+
+            <div class="text-center mb-8">
+                <p class="text-lg text-gray-500">Monto Fijo</p>
+                <h3 class="text-4xl font-bold text-gray-800" id="nfc-amount-display">$ 0,00</h3>
+            </div>
+
+            <!-- Area de Pulso NFC -->
+            <div class="w-56 h-56 bg-white rounded-full flex items-center justify-center mt-10 shadow-xl nfc-pulsing-circle">
+                <div class="w-32 h-32 bg-paymee-cyan/20 rounded-full flex items-center justify-center">
+                    <svg class="w-16 h-16 text-paymee-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+            </div>
+
+            <p class="text-lg font-semibold text-gray-700 mt-12 text-center">
+                Acerca la tarjeta o el celular del cliente.
+            </p>
+            <p class="text-sm text-gray-500 mt-2 text-center">
+                Esperando la confirmación de pago...
+            </p>
+
+            <button onclick="renderScreen('success')" class="w-5/6 mt-12 py-3 text-white font-semibold rounded-xl bg-paymee-gradient shadow-lg shadow-pink-300/50 hover:scale-[0.99] transition duration-200 tap-effect">
+                Simular Pago Exitoso
+            </button>
+        </div>
+
+        <!-- PAGO EXITOSO -->
+        <div id="success" class="app-screen p-6 items-center justify-center text-center">
+            <div class="flex flex-col items-center">
+                <div class="w-24 h-24 rounded-full bg-green-500/10 flex items-center justify-center mb-6">
+                    <svg class="w-12 h-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800">¡Cobro Exitoso!</h2>
+                <h3 class="text-5xl font-extrabold text-gray-800 mt-4" id="success-amount-display">$ 0,00</h3>
+                <p class="text-gray-500 mt-2">Monto acreditado a tu cuenta.</p>
+
+                <button onclick="renderScreen('receipt')" class="w-64 mt-10 py-3 text-paymee-cyan font-semibold rounded-xl border border-paymee-cyan hover:bg-paymee-cyan/10 transition duration-200 tap-effect">
+                    Ver Comprobante
+                </button>
+                <button onclick="renderScreen('home-dashboard')" class="w-64 mt-3 py-3 text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition duration-200 tap-effect">
+                    Volver al Inicio
+                </button>
+            </div>
+        </div>
+
+        <!-- COMPROBANTE DIGITAL -->
+        <div id="receipt" class="app-screen p-6 overflow-y-auto">
+            <div class="flex items-center w-full mb-8 pt-4">
+                <button onclick="renderScreen('success')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                <h2 class="text-xl font-bold text-gray-800 ml-4">Comprobante Digital</h2>
+            </div>
+
+            <div class="paymee-card p-6 border-t-8 border-paymee-cyan">
+                <div class="text-center border-b border-gray-100 pb-4 mb-4">
+                    <p class="text-2xl font-bold text-gray-800" id="receipt-total">$ 0,00</p>
+                    <p class="text-sm text-gray-500">Monto Total</p>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm text-gray-600"><span>Fecha</span><span id="receipt-date">10/10/2025 10:30 AM</span></div>
+                    <div class="flex justify-between text-sm text-gray-600"><span>Método</span><span id="receipt-method">Tap-to-Phone</span></div>
+                    <div class="flex justify-between text-sm text-gray-600"><span>Cód. de Transacción</span><span id="receipt-code">PYM-8374829X</span></div>
+                    <div class="flex justify-between text-sm text-gray-600"><span>Comisión (3%)</span><span class="text-red-500" id="receipt-fee">$ 0,00</span></div>
+                    <div class="flex justify-between text-lg font-bold text-gray-800 pt-3 border-t border-dashed border-gray-200">
+                        <span>Monto Acreditado</span>
+                        <span id="receipt-net">$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="w-full mt-8 py-3 text-white font-semibold rounded-xl bg-paymee-gradient hover:scale-[0.99] transition duration-200 tap-effect">
+                Enviar por Email/WhatsApp
+            </button>
+        </div>
+
+        <!-- HISTORIAL -->
+        <div id="history" class="app-screen p-6 overflow-y-auto">
+             <h2 class="text-2xl font-bold text-gray-800 mb-6 pt-4">Historial de Pagos</h2>
+             <div class="space-y-4">
+                <!-- Historial 1 -->
+                <div class="paymee-card p-4 flex justify-between items-center hover:scale-[0.99] transition duration-150 tap-effect">
+                    <div class="flex items-center">
+                        <span class="w-10 h-10 flex items-center justify-center rounded-full bg-paymee-lavender/30 text-paymee-lavender font-bold mr-3">QR</span>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">Cobro con QR</p>
+                            <p class="text-xs text-gray-400">10/10/2025 10:30 AM</p>
+                        </div>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">$ 5.800,00</span>
+                </div>
+                 <!-- Historial 2 -->
+                 <div class="paymee-card p-4 flex justify-between items-center hover:scale-[0.99] transition duration-150 tap-effect">
+                    <div class="flex items-center">
+                        <span class="w-10 h-10 flex items-center justify-center rounded-full bg-paymee-cyan/30 text-paymee-cyan font-bold mr-3">NFC</span>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">Cobro Tap-to-Phone</p>
+                            <p class="text-xs text-gray-400">10/10/2025 07:45 AM</p>
+                        </div>
+                    </div>
+                    <span class="text-sm font-bold text-gray-700">$ 9.850,00</span>
+                </div>
+                <!-- Historial 3 (Rechazado) -->
+                <div class="paymee-card p-4 flex justify-between items-center opacity-70 hover:scale-[0.99] transition duration-150 tap-effect">
+                    <div class="flex items-center">
+                        <span class="w-10 h-10 flex items-center justify-center rounded-full bg-red-500/10 text-red-500 mr-3"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></span>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">Cobro Tap-to-Phone</p>
+                            <p class="text-xs text-gray-400">09/10/2025 1:20 PM</p>
+                        </div>
+                    </div>
+                    <span class="text-sm font-bold text-gray-500 line-through">$ 3.200,00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESUMEN DIARIO -->
+        <div id="daily-summary" class="app-screen p-6 overflow-y-auto">
+            <div class="flex items-center w-full mb-6 pt-4">
+                <button onclick="renderScreen('home-dashboard')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                <h2 class="text-2xl font-bold text-gray-800 ml-4">Métricas Diarias</h2>
+            </div>
+
+            <!-- Tarjeta Total Cobrado -->
+            <div class="paymee-card p-6 mb-6 bg-paymee-gradient text-white hover:scale-[0.99] transition duration-150 tap-effect">
+                <p class="text-sm opacity-80">Total Cobrado Hoy (Neto)</p>
+                <h3 class="text-4xl font-extrabold mt-1">$ 15.204,50</h3>
+                <p class="text-xs opacity-80 mt-2">Monto Bruto: $ 15.650,00</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <!-- Tarjeta Transacciones -->
+                <div class="paymee-card p-4 hover:scale-[0.99] transition duration-150 tap-effect">
+                    <p class="text-xs text-gray-500">Transacciones</p>
+                    <h4 class="text-2xl font-bold text-gray-800 mt-1">3</h4>
+                    <span class="text-xs text-green-500">+1 en las últimas 2h</span>
+                </div>
+                <!-- Tarjeta Comisión -->
+                <div class="paymee-card p-4 hover:scale-[0.99] transition duration-150 tap-effect">
+                    <p class="text-xs text-gray-500">Comisiones Acum.</p>
+                    <h4 class="text-xl font-bold text-gray-800 mt-1 text-red-500">$ 465,50</h4>
+                    <span class="text-xs text-gray-400">Tasa 3.0%</span>
+                </div>
+            </div>
+
+            <h4 class="text-lg font-semibold text-gray-800 mb-3">Distribución de Métodos</h4>
+            <div class="paymee-card p-4 hover:scale-[0.99] transition duration-150 tap-effect">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm text-gray-700">QR</span>
+                    <span class="text-sm font-semibold text-paymee-coral">37%</span>
+                </div>
+                 <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm text-gray-700">Tap-to-Phone (NFC)</span>
+                    <span class="text-sm font-semibold text-paymee-cyan">63%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CUENTA VINCULADA (Con Integración Gemini) -->
+        <div id="linked-account" class="app-screen p-6 overflow-y-auto">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 pt-4">Mi Cuenta y Soporte IA</h2>
+
+            <h4 class="text-lg font-semibold text-gray-800 mb-3">Cuenta de Depósito</h4>
+            <div class="paymee-card p-4 mb-6 hover:scale-[0.99] transition duration-150 tap-effect">
+                <p class="text-sm text-gray-500">Banco</p>
+                <p class="text-md font-semibold text-gray-800">Banco Digital Argentino S.A.</p>
+                <p class="text-sm text-gray-500 mt-3">CBU / Alias</p>
+                <p class="text-md font-semibold text-gray-800">12345678901234567890 (PAYMEE.AXEL)</p>
+            </div>
+
+            <h4 class="text-lg font-semibold text-gray-800 mb-3">Asistente de IA (Gemini)</h4>
+            <div class="paymee-card p-4 mb-6 space-y-3">
+                
+                <!-- Función IA 1: Asistente de Soporte -->
+                <button onclick="showGeminiModal('support')" class="w-full py-3 bg-paymee-lavender/30 text-paymee-lavender font-semibold rounded-lg flex items-center justify-center hover:scale-[0.99] transition duration-150 tap-effect">
+                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>Generar Respuesta Soporte</span>
+                </button>
+                
+                <!-- Función IA 2: Generador de Beneficios -->
+                <button onclick="showGeminiModal('benefits')" class="w-full py-3 bg-paymee-lavender/30 text-paymee-lavender font-semibold rounded-lg flex items-center justify-center hover:scale-[0.99] transition duration-150 tap-effect">
+                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4m10 0v4m-2-4h4m2 0H8m0 0a2 2 0 012-2h4a2 2 0 012 2v4a2 2 0 01-2 2h-4a2 2 0 01-2-2v-4z"/></svg>
+                    <span>Generar Ideas de Beneficios</span>
+                </button>
+            </div>
+            
+        </div>
+        
+        <!-- NAVBAR - BARRA DE NAVEGACION INFERIOR -->
+        <div class="paymee-navbar flex justify-around items-center" id="main-navbar">
+            <button onclick="renderScreen('home-dashboard')" data-screen="home-dashboard" class="nav-item flex flex-col items-center p-2 tap-effect">
+                <svg class="w-6 h-6 text-paymee-cyan nav-icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                <span class="text-xs text-paymee-cyan mt-1">Inicio</span>
+            </button>
+            <button onclick="renderScreen('collect-amount')" data-screen="collect-amount" class="nav-item flex flex-col items-center p-2 tap-effect">
+                <svg class="w-6 h-6 text-gray-400 nav-icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M4 4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zM6 8a2 2 0 012-2h4a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2V8z"></path></svg>
+                <span class="text-xs text-gray-400 mt-1">Cobrar</span>
+            </button>
+            <button onclick="renderScreen('history')" data-screen="history" class="nav-item flex flex-col items-center p-2 tap-effect">
+                <svg class="w-6 h-6 text-gray-400 nav-icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm6 12a1 1 0 100-2 1 1 0 000 2zM9 9a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path></svg>
+                <span class="text-xs text-gray-400 mt-1">Historial</span>
+            </button>
+            <button onclick="renderScreen('daily-summary')" data-screen="daily-summary" class="nav-item flex flex-col items-center p-2 tap-effect">
+                <svg class="w-6 h-6 text-gray-400 nav-icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path></svg>
+                <span class="text-xs text-gray-400 mt-1">Resumen</span>
+            </button>
+            <button onclick="renderScreen('linked-account')" data-screen="linked-account" class="nav-item flex flex-col items-center p-2 tap-effect">
+                <svg class="w-6 h-6 text-gray-400 nav-icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM9.5 12a5.5 5.5 0 00-5.46 6.02L4 18h12c0-.32-.04-.64-.14-.98A5.5 5.5 0 0010 12h-.5z"></path></svg>
+                <span class="text-xs text-gray-400 mt-1">Cuenta</span>
+            </button>
+        </div>
+        
+        <!-- MODAL OVERLAY PARA LA IA (Oculto por defecto) -->
+        <div id="gemini-modal-overlay" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm z-50 flex items-end justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+            <div id="gemini-modal-content" class="bg-white w-full max-h-3/4 rounded-t-3xl p-6 transform translate-y-full transition-transform duration-300 overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800" id="modal-title">Asistente de IA</h3>
+                    <button onclick="hideGeminiModal()" class="text-gray-500 hover:text-gray-900 tap-effect">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                
+                <!-- Contenido dinámico (Loading, Formulario o Resultado) -->
+                <div id="modal-body">
+                    <!-- Contenido inyectado por JavaScript -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- VARIABLES DE ESTADO Y CONFIGURACIÓN ---
+        let currentScreen = 'splash-screen';
+        let amount = '000'; // Formato interno: centavos como string (ej. '12345' para $123.45)
+        
+        const screens = document.querySelectorAll('.app-screen');
+        const navbar = document.getElementById('main-navbar');
+        const navItems = document.querySelectorAll('.nav-item');
+        const modalOverlay = document.getElementById('gemini-modal-overlay');
+        const modalBody = document.getElementById('modal-body');
+        const modalTitle = document.getElementById('modal-title');
+
+        // --- FUNCIONES DE FORMATO Y UTILIDAD ---
+
+        const formatAmount = (value) => {
+            const numberValue = parseFloat(value) || 0;
+            return new Intl.NumberFormat('es-AR', {
+                style: 'currency',
+                currency: 'ARS',
+                minimumFractionDigits: 2
+            }).format(numberValue);
+        };
+
+        const updateDisplay = () => {
+            const display = document.getElementById('display-amount');
+            if (display) {
+                // El formato interno es centavos, lo convertimos a pesos con coma y puntos de miles
+                let displayValue = amount.replace(/[^\d]/g, ''); 
+                
+                // Rellenar con ceros si es muy corto (ej. '000' -> 0,00)
+                if (displayValue.length < 3) {
+                    displayValue = '000'.substring(0, 3 - displayValue.length) + displayValue;
+                }
+                
+                const formatted = displayValue.slice(0, -2) + ',' + displayValue.slice(-2);
+                
+                // Remover ceros no significativos en la parte entera (ej. 005,00 -> 5,00)
+                let integerPart = formatted.slice(0, formatted.length - 3);
+                const decimalPart = formatted.slice(-2);
+                
+                // Remover ceros a la izquierda, excepto si es solo '0'
+                integerPart = integerPart.replace(/^0+/, '');
+                if (integerPart === '') integerPart = '0';
+                
+                // Agregar puntos de miles
+                integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+                display.textContent = `$ ${integerPart},${decimalPart}`;
+            }
+
+            const btn = document.getElementById('collect-generate-btn');
+            if (btn) {
+                const isValid = parseInt(amount) > 0;
+                btn.disabled = !isValid;
+                btn.className = `w-full py-4 text-white font-semibold rounded-xl transition duration-300 tap-effect ${isValid ? 'bg-paymee-gradient shadow-lg shadow-pink-300/50 hover:scale-[0.99] cursor-pointer' : 'bg-gray-400 cursor-not-allowed'}`;
+            }
+        };
+
+        const handleKeyPress = (value) => {
+            let cleanAmount = amount.replace(/[^\d]/g, '');
+
+            if (value === 'delete') {
+                if (cleanAmount.length > 1) {
+                    cleanAmount = cleanAmount.slice(0, -1);
+                } else {
+                    cleanAmount = '0'; // Mínimo es '0' (0,00)
+                }
+            } else if (value.match(/[0-9]/)) {
+                // Limite a 8 dígitos (ej. 99999.99)
+                if (cleanAmount.length < 8) { 
+                    cleanAmount += value;
+                }
+            }
+            
+            amount = cleanAmount;
+            updateDisplay();
+        };
+
+        const calculateReceipt = (totalAmountInCents) => {
+            const rawValue = parseFloat(totalAmountInCents) / 100;
+            const FEE_RATE = 0.03; 
+            
+            const total = rawValue;
+            const fee = total * FEE_RATE;
+            const net = total - fee;
+            
+            return {
+                total: formatAmount(total.toFixed(2)),
+                fee: formatAmount(fee.toFixed(2)),
+                net: formatAmount(net.toFixed(2)),
+                method: currentScreen === 'qr-sim' ? 'QR Interoperable' : 'Tap-to-Phone (NFC)'
+            };
+        };
+        
+        // --- FUNCIONES DE NAVEGACIÓN Y COMPONENTE ---
+
+        const updateNavHighlight = (targetId) => {
+            navItems.forEach(item => {
+                const icon = item.querySelector('svg');
+                const text = item.querySelector('span');
+                const targetScreenName = item.getAttribute('data-screen');
+
+                // Lógica para resaltar el botón activo
+                const isActive = (targetId === targetScreenName) || 
+                                 (targetId === 'collect-amount' && targetScreenName === 'collect-amount'); 
+
+                if (isActive) {
+                    icon.classList.replace('text-gray-400', 'text-paymee-cyan');
+                    text.classList.replace('text-gray-400', 'text-paymee-cyan');
+                } else {
+                    icon.classList.replace('text-paymee-cyan', 'text-gray-400');
+                    text.classList.replace('text-paymee-cyan', 'text-gray-400');
+                }
+            });
+        };
+
+        const renderScreen = (targetId) => {
+            const current = document.getElementById(currentScreen);
+            const target = document.getElementById(targetId);
+
+            if (!target || targetId === currentScreen) return;
+            
+            // Determinar si la navbar debe ser visible
+            const showNavbar = ['home-dashboard', 'collect-amount', 'history', 'daily-summary', 'linked-account'].includes(targetId);
+            navbar.style.display = showNavbar ? 'flex' : 'none';
+
+            // Actualizar el estado de la barra de navegación
+            updateNavHighlight(targetId);
+
+
+            // Lógica de Pre-renderizado de Montos
+            const amountInPesos = (parseFloat(amount) / 100).toFixed(2);
+            const displayValue = formatAmount(amountInPesos);
+
+            if (targetId === 'collect-method') {
+                document.getElementById('method-amount-display').textContent = displayValue;
+            } else if (targetId === 'qr-sim') {
+                document.getElementById('qr-amount-display').textContent = displayValue;
+            } else if (targetId === 'nfc-sim') {
+                document.getElementById('nfc-amount-display').textContent = displayValue;
+            } else if (targetId === 'success') {
+                document.getElementById('success-amount-display').textContent = displayValue;
+            } else if (targetId === 'receipt') {
+                const receipt = calculateReceipt(amount);
+                document.getElementById('receipt-total').textContent = receipt.total;
+                document.getElementById('receipt-fee').textContent = receipt.fee;
+                document.getElementById('receipt-net').textContent = receipt.net;
+                document.getElementById('receipt-method').textContent = receipt.method;
+                document.getElementById('receipt-date').textContent = new Date().toLocaleString('es-AR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
+                });
+            } else if (targetId === 'collect-amount') {
+                updateDisplay();
+            }
+            
+            // Transición visual
+            current.classList.remove('active');
+            target.classList.add('active');
+            
+            currentScreen = targetId;
+
+            // Reiniciar el monto al volver al dashboard
+            if (targetId === 'home-dashboard') {
+                amount = '000';
+            }
+        };
+        
+        // --- GEMINI AI FUNCTIONS ---
+        
+        const showGeminiModal = (mode) => {
+            modalOverlay.classList.remove('opacity-0', 'pointer-events-none');
+            modalOverlay.querySelector('#gemini-modal-content').classList.remove('translate-y-full');
+
+            if (mode === 'support') {
+                modalTitle.textContent = "Asistente de Soporte IA";
+                modalBody.innerHTML = `
+                    <p class="text-sm text-gray-600 mb-3">Escribe la consulta de tu cliente para generar una respuesta profesional:</p>
+                    <textarea id="ai-input-support" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-paymee-lavender" rows="4" placeholder="Ej: Mi cobro NFC falló y el dinero no se acreditó."></textarea>
+                    <button onclick="startGeminiCall('support')" class="w-full mt-4 py-3 text-white font-semibold rounded-xl bg-paymee-lavender hover:opacity-90 tap-effect">
+                        Generar Respuesta
+                    </button>
+                    <div id="ai-result-display" class="mt-4 p-4 bg-gray-100 rounded-lg hidden"></div>
+                `;
+            } else if (mode === 'benefits') {
+                modalTitle.textContent = "Generador de Beneficios IA";
+                modalBody.innerHTML = `
+                    <p class="text-sm text-gray-600 mb-3">¡Generemos ideas para recompensar a tus mejores clientes!</p>
+                    <p class="text-sm text-gray-600 mb-4">El modelo generará una lista de 5 ideas de beneficios para tu negocio.</p>
+                    <button onclick="startGeminiCall('benefits')" class="w-full mt-2 py-3 text-white font-semibold rounded-xl bg-paymee-lavender hover:opacity-90 tap-effect">
+                        Generar Ideas
+                    </button>
+                    <div id="ai-result-display" class="mt-4 p-4 bg-gray-100 rounded-lg hidden"></div>
+                `;
+            }
+        };
+
+        const hideGeminiModal = () => {
+            const modalContent = modalOverlay.querySelector('#gemini-modal-content');
+            modalContent.classList.add('translate-y-full');
+            setTimeout(() => {
+                modalOverlay.classList.add('opacity-0', 'pointer-events-none');
+                modalBody.innerHTML = ''; // Limpiar contenido al cerrar
+            }, 300);
+        };
+        
+        const showLoading = (message) => {
+            modalBody.innerHTML = `
+                <div class="flex flex-col items-center justify-center p-8 text-paymee-lavender">
+                    <svg class="animate-spin h-8 w-8 mb-4" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="80" stroke-dashoffset="60"></circle></svg>
+                    <p class="font-semibold">${message}</p>
+                </div>
+            `;
+        };
+
+        const showResult = (content, isError = false) => {
+            const display = document.getElementById('ai-result-display');
+            if (isError) {
+                modalBody.innerHTML = `<div class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"><p class="font-bold">Error de Conexión</p><p class="text-sm mt-1">${content}</p></div>`;
+            } else {
+                modalBody.innerHTML = `
+                    <p class="text-sm text-gray-600 mb-3 font-bold">Resultado de la IA:</p>
+                    <div class="p-4 bg-gray-100 rounded-lg whitespace-pre-wrap text-sm">${content}</div>
+                `;
+            }
+        };
+        
+        const startGeminiCall = (mode) => {
+            if (GEMINI_API_KEY === "TU_CLAVE_DE_API_AQUÍ") {
+                showResult("Por favor, reemplaza 'TU_CLAVE_DE_API_AQUÍ' en el código con tu clave real de Gemini API para usar esta función.", true);
+                return;
+            }
+            
+            let userPrompt = "";
+            let systemPrompt = "";
+            let isStructured = false;
+
+            if (mode === 'support') {
+                const input = document.getElementById('ai-input-support').value;
+                if (!input) return;
+                userPrompt = `Consulta del cliente: "${input}"`;
+                systemPrompt = "Eres un agente de soporte amigable, profesional y conciso para una app de pagos (Paymee). Genera una respuesta empática y que ofrezca un paso de acción claro, en español. Limítate a la respuesta y un saludo final.";
+            } else if (mode === 'benefits') {
+                userPrompt = "Genera 5 ideas creativas y aplicables de beneficios o programas de fidelidad para un negocio que usa Paymee para cobrar, con el fin de aumentar la retención de clientes. Dame la respuesta en formato de lista (Markdown).";
+                systemPrompt = "Eres un estratega de marketing para Pymes. Crea 5 ideas de programas de fidelización con títulos cortos y una descripción concisa. El tono debe ser directo y motivador.";
+            }
+
+            makeGeminiApiCall(userPrompt, isStructured, systemPrompt);
+        };
+        
+        // --- CORE GEMINI API CALL LOGIC (SIMPLIFIED FOR MOCKUP) ---
+        
+        const makeGeminiApiCall = async (userQuery, isStructured, systemPrompt) => {
+            showLoading("Generando contenido con Gemini...");
+
+            const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + GEMINI_API_KEY;
+            
+            const headers = { 'Content-Type': 'application/json' };
+            
+            const body = {
+                contents: [{ role: "user", parts: [{ text: userQuery }] }],
+                config: {
+                    systemInstruction: systemPrompt,
+                    temperature: 0.7 
+                }
+            };
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates.length > 0) {
+                    const textResult = data.candidates[0].content.parts[0].text;
+                    showResult(textResult);
+                } else {
+                    showResult("La IA no pudo generar una respuesta. Inténtalo de nuevo.", true);
+                }
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                showResult(`No se pudo conectar con la API. Verifica tu clave y conexión. Detalle: ${error.message}`, true);
+            }
+        };
+
+        // --- INICIALIZACIÓN ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Asignar listeners al teclado
+            document.querySelectorAll('.key-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const value = button.getAttribute('data-value') || button.getAttribute('data-action');
+                    handleKeyPress(value);
+                });
+            });
+
+            // Inicializar la navbar y el splash screen
+            navbar.style.display = 'none';
+
+            // Transición Splash -> Welcome
+            setTimeout(() => {
+                document.getElementById('splash-screen').classList.remove('active');
+                document.getElementById('splash-screen').style.transform = 'translateX(-100%)';
+                document.getElementById('welcome').classList.add('active');
+                document.getElementById('welcome').style.transform = 'translateX(0)';
+                currentScreen = 'welcome';
+            }, 1500);
+            
+            // Inicializar el display de la calculadora
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>
