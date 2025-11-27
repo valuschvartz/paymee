@@ -12,7 +12,7 @@
     :root {
       --color-coral: #FF6B81;
       --color-cyan:  #A5E4FF;
-      --color-lavender: #D9C6FF; /* Se mantiene por si se usa en otros lados, pero el código IA se elimina */
+      --color-lavender: #D9C6FF;
       --color-smoke: #F7F8FA;
       --color-dark:  #0A0A0A;
       --color-card-bg: #FFFFFF;
@@ -26,55 +26,69 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh; /* Usa min-height para mejor compatibilidad móvil */
+      min-height: 100vh;
       margin: 0;
       padding: 0;
-      overflow-y: auto; /* Permite scroll en el body si es necesario */
+      overflow-y: auto;
     }
 
     .phone-container {
-      /* Adaptación clave: usa max-width y max-height relativos */
       width: 100%;
       height: 100vh;
-      max-width: 420px; /* Tamaño máximo del "teléfono" */
-      max-height: 844px; /* Altura máxima del "teléfono" */
-      background-color: var(--color-dark);
-      border-radius: 0; /* Lo hacemos rectangular en pantalla completa para mejor UX móvil */
+      max-width: 420px;
+      max-height: 844px;
+      background-color: var(--color-dark); /* Fondo negro del teléfono */
+      border-radius: 0;
       overflow: hidden;
-      box-shadow: none; /* Quitamos la sombra para un look de app nativa en móvil */
+      box-shadow: none;
       position: relative;
-      transition: all 0.3s ease-in-out;
     }
 
-    /* Aplica estilos de "teléfono" solo en pantallas más grandes que 420px */
     @media (min-width: 420px) {
       .phone-container {
         border-radius: 40px;
         box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
-        width: 390px; /* Vuelve a las dimensiones de mockup si hay espacio */
+        width: 390px;
         height: 844px;
-        margin: 20px; /* Margen para centrarlo y que se vea el fondo */
+        margin: 20px;
       }
     }
 
+    /* PANTALLAS */
     .app-screen {
-      width: 100%; height: 100%;
-      position: absolute; top: 0; left: 0;
-      /* Animación de slide */
-      transform: translateX(100%); transition: transform .3s ease-in-out;
-      background-color: #fff; color:#1f2937; display:flex; flex-direction:column;
+      width: 100%; 
+      height: 100%;
+      position: absolute; 
+      top: 0; 
+      left: 0;
+      background-color: #fff; 
+      color: #1f2937;
+      display: none;
+      flex-direction: column;
       padding-bottom: 70px;
-      overflow-y:auto; /* El scroll interno se mantiene */
-      -webkit-overflow-scrolling: touch; /* Mejora el scroll en iOS */
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      z-index: 1;
     }
-    .app-screen.active { transform: translateX(0); }
+    
+    .app-screen.active { 
+      display: flex; 
+      z-index: 5;
+      animation: fadeIn 0.2s ease-out;
+    }
 
-    /* NAVBAR FIJA EN LA PARTE INFERIOR */
+    @keyframes fadeIn {
+      from { opacity: 0.9; }
+      to { opacity: 1; }
+    }
+
+    /* NAVBAR FIJA */
     .paymee-navbar {
       position: absolute; bottom:0; left:0; width:100%; height:70px;
       background-color: var(--color-card-bg);
       border-top: 1px solid #f0f0f0; box-shadow: 0 -4px 12px rgba(0,0,0,.03);
-      z-index: 10; display:flex; justify-content:space-around; align-items:center;
+      z-index: 50;
+      display:flex; justify-content:space-around; align-items:center;
     }
 
     /* ESTILOS DE COLOR Y EFECTOS */
@@ -94,7 +108,6 @@
     @keyframes nfc-pulse { 0%{box-shadow:0 0 0 0 rgba(165,228,255,.7);} 70%{box-shadow:0 0 0 20px rgba(165,228,255,0);} 100%{box-shadow:0 0 0 0 rgba(165,228,255,0);} }
     .nfc-pulsing-circle { animation: nfc-pulse 1.5s infinite; }
 
-    /* Texto "Paymee" con degradado */
     .paymee-logo-text{
       background-image: linear-gradient(to right, var(--color-coral), var(--color-cyan));
       -webkit-background-clip:text; background-clip:text;
@@ -103,48 +116,44 @@
     .tap-effect:active { transform: scale(0.98); }
     .key-button { border:none; cursor:pointer; }
 
-    /* Ajustes específicos de padding y margenes para pantallas pequeñas */
-    .app-screen > * {
-      /* Asegura que los hijos de las pantallas tengan un máximo de ancho para centrarse si el contenedor es muy grande */
-      max-width: 100%;
-    }
+    .app-screen > * { max-width: 100%; }
 
-    /* Estilos de botones de historial para asegurar que no se desborden en pantallas pequeñas */
     .history-chips {
-      overflow-x: auto;
-      white-space: nowrap;
-      padding-bottom: 5px; /* Espacio para la sombra de scroll */
+      overflow-x: auto; white-space: nowrap; padding-bottom: 5px;
     }
-    .history-chips button {
-      flex-shrink: 0; /* Evita que los botones se achiquen */
-    }
+    .history-chips button { flex-shrink: 0; }
   </style>
 </head>
 <body>
 
 <div class="phone-container" id="phone-container">
-  <div id="splash-screen" class="app-screen active !bg-white transition-all">
+  
+  <!-- SPLASH CON LOGO -->
+  <div id="splash" class="app-screen active !bg-white">
     <div class="flex flex-col items-center justify-center h-full bg-paymee-gradient">
-      <div class="bg-white p-6 rounded-3xl shadow-xl">
-        <img src="logo.png" alt="Paymee Logo" class="w-24 h-24 animate-pulse-logo">
+      <div class="bg-white/95 p-6 rounded-3xl shadow-xl">
+        <!-- logo.png debe estar en la misma carpeta -->
+        <img src="logo.png" alt="Logo Paymee" class="w-24 h-24 object-contain animate-pulse-logo">
       </div>
       <div class="paymee-logo-text mt-6">Paymee</div>
       <div class="text-white text-sm font-light tracking-widest mt-2 opacity-90">COBROS FÁCILES. SIN CONTACTO.</div>
     </div>
   </div>
 
+  <!-- WELCOME CON LOGO -->
   <div id="welcome" class="app-screen justify-center items-center">
     <div class="flex flex-col items-center p-8 text-center w-full">
-      <img src="logo.png" alt="Paymee Logo" class="w-20 h-20">
+      <img src="logo.png" alt="Logo Paymee" class="w-20 h-20 object-contain">
       <h1 class="text-3xl font-bold mt-8 text-gray-800">¡Bienvenido a Paymee!</h1>
       <p class="text-gray-500 mt-4 px-4">La manera más rápida y segura de aceptar pagos con QR y Tap-to-Phone.</p>
-      <button onclick="renderScreen('home-dashboard')" class="w-full mt-12 py-3 text-white font-semibold rounded-xl bg-paymee-gradient shadow-lg shadow-pink-300/50 hover:scale-[0.99] transition duration-200 tap-effect max-w-sm">
+      <button onclick="changeRoute('home-dashboard')" class="w-full mt-12 py-3 text-white font-semibold rounded-xl bg-paymee-gradient shadow-lg shadow-pink-300/50 hover:scale-[0.99] transition duration-200 tap-effect max-w-sm">
         Comenzar
       </button>
     </div>
   </div>
 
-  <div id="home-dashboard" class="app-screen p-6 overflow-y-auto">
+  <!-- HOME -->
+  <div id="home-dashboard" class="app-screen p-6">
     <div class="mb-6 pt-4">
       <h2 class="text-xl font-bold text-gray-800">Hola, Axel 👋</h2>
       <p class="text-sm text-gray-500">Resumen de tu día de cobros.</p>
@@ -160,12 +169,12 @@
     </div>
 
     <div class="grid grid-cols-2 gap-4 mb-8">
-      <button onclick="renderScreen('collect-amount')" class="paymee-card p-4 flex flex-col items-start hover:scale-[0.98] transition duration-150 tap-effect">
+      <button onclick="changeRoute('collect-amount')" class="paymee-card p-4 flex flex-col items-start hover:scale-[0.98] transition duration-150 tap-effect">
         <svg class="w-8 h-8 text-paymee-coral" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2M12 1c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z"/></svg>
         <span class="mt-2 text-md font-semibold text-gray-800">Cobrar</span>
         <span class="text-xs text-gray-400">QR / NFC / Link</span>
       </button>
-      <button onclick="renderScreen('history')" class="paymee-card p-4 flex flex-col items-start hover:scale-[0.98] transition duration-150 tap-effect">
+      <button onclick="changeRoute('history')" class="paymee-card p-4 flex flex-col items-start hover:scale-[0.98] transition duration-150 tap-effect">
         <svg class="w-8 h-8 text-paymee-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-4 18h.01M3 21h18a2 2 0 002-2V7a2 2 0 00-2-2H3a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         <span class="mt-2 text-md font-semibold text-gray-800">Historial</span>
         <span class="text-xs text-gray-400">Ver cobros</span>
@@ -186,25 +195,14 @@
         </div>
         <p class="font-bold text-gray-800">$ 12.450,00</p>
       </div>
-      <div class="paymee-card p-3 flex justify-between items-center text-sm">
-        <div class="flex items-center">
-            <div class="w-8 h-8 rounded-full bg-gray-100 mr-3 flex items-center justify-center">
-                <svg class="w-4 h-4 text-paymee-coral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM16 14h-2v2h2v4h4v-4h-2v-2h2v-2h-4z"/></svg>
-            </div>
-            <div>
-                <p class="font-semibold">Código QR</p>
-                <p class="text-xs text-gray-500">11:02 AM</p>
-            </div>
-        </div>
-        <p class="font-bold text-gray-800">$ 23.200,00</p>
-      </div>
     </div>
   </div>
 
+  <!-- RESTO DE PANTALLAS (sin cambios visuales importantes) -->
   <div id="collect-amount" class="app-screen flex-col justify-between">
     <div class="p-6 pt-4 flex-grow">
       <div class="flex items-center mb-6">
-        <button onclick="renderScreen('home-dashboard')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+        <button onclick="changeRoute('home-dashboard')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
         <h2 class="text-xl font-bold text-gray-800 ml-4">Ingresa el Monto</h2>
       </div>
       <div class="text-center mt-12 mb-6">
@@ -230,7 +228,7 @@
         </button>
       </div>
       <div class="p-4">
-        <button id="collect-generate-btn" onclick="renderScreen('collect-method')" class="w-full py-4 text-white font-semibold rounded-xl bg-gray-400 cursor-not-allowed transition duration-300" disabled>
+        <button id="collect-generate-btn" onclick="changeRoute('collect-method')" class="w-full py-4 text-white font-semibold rounded-xl bg-gray-400 cursor-not-allowed transition duration-300" disabled>
           Generar Cobro
         </button>
       </div>
@@ -239,7 +237,7 @@
 
   <div id="collect-method" class="app-screen p-6">
     <div class="flex items-center mb-8 pt-4">
-      <button onclick="renderScreen('collect-amount')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+      <button onclick="changeRoute('collect-amount')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
       <h2 class="text-xl font-bold text-gray-800 ml-4">Selecciona el Método</h2>
     </div>
 
@@ -249,11 +247,11 @@
     </div>
 
     <div class="grid grid-cols-2 gap-4">
-      <button onclick="renderScreen('qr-sim')" class="paymee-card p-4 flex flex-col items-center justify-center h-36 hover:bg-gray-50 hover:scale-[0.98] transition">
+      <button onclick="changeRoute('qr-sim')" class="paymee-card p-4 flex flex-col items-center justify-center h-36 hover:bg-gray-50 hover:scale-[0.98] transition">
         <svg class="w-10 h-10 text-paymee-coral" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8v8m0-8v.01"/></svg>
         <span class="mt-2 text-md font-semibold text-gray-800">Código QR</span>
       </button>
-      <button onclick="renderScreen('nfc-sim')" class="paymee-card p-4 flex flex-col items-center justify-center h-36 hover:bg-gray-50 hover:scale-[0.98] transition">
+      <button onclick="changeRoute('nfc-sim')" class="paymee-card p-4 flex flex-col items-center justify-center h-36 hover:bg-gray-50 hover:scale-[0.98] transition">
         <svg class="w-10 h-10 text-paymee-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         <span class="mt-2 text-md font-semibold text-gray-800">Tap-to-Phone</span>
       </button>
@@ -262,7 +260,7 @@
 
   <div id="qr-sim" class="app-screen p-6 items-center justify-start">
     <div class="flex items-center w-full mb-8 pt-4">
-      <button onclick="renderScreen('collect-method')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+      <button onclick="changeRoute('collect-method')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
       <h2 class="text-xl font-bold text-gray-800 ml-4">Cobro con QR</h2>
     </div>
     <div class="text-center mb-8">
@@ -273,14 +271,14 @@
       <svg class="w-16 h-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354l-7 7m0 0l-7 7m7-7v14"/></svg>
     </div>
     <p class="text-sm text-gray-500 mt-6 text-center">Escanea este código con cualquier billetera virtual.</p>
-    <button onclick="renderScreen('success')" class="w-full max-w-sm mt-12 py-3 text-white font-semibold rounded-xl bg-paymee-gradient shadow-lg hover:scale-[0.99] transition">
+    <button onclick="changeRoute('success')" class="w-full max-w-sm mt-12 py-3 text-white font-semibold rounded-xl bg-paymee-gradient shadow-lg hover:scale-[0.99] transition">
       Simular Pago Exitoso
     </button>
   </div>
 
   <div id="nfc-sim" class="app-screen p-6 items-center justify-start">
     <div class="flex items-center w-full mb-8 pt-4">
-      <button onclick="renderScreen('collect-method')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+      <button onclick="changeRoute('collect-method')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
       <h2 class="text-xl font-bold text-gray-800 ml-4">Tap-to-Phone (NFC)</h2>
     </div>
     <div class="text-center mb-8">
@@ -294,7 +292,7 @@
     </div>
     <p class="text-lg font-semibold text-gray-700 mt-12 text-center">Acerca la tarjeta o el celular del cliente.</p>
     <p class="text-sm text-gray-500 mt-2 text-center">Esperando la confirmación de pago...</p>
-    <button onclick="renderScreen('success')" class="w-full max-w-sm mt-12 py-3 text-white font-semibold rounded-xl bg-paymee-gradient shadow-lg hover:scale-[0.99] transition">
+    <button onclick="changeRoute('success')" class="w-full max-w-sm mt-12 py-3 text-white font-semibold rounded-xl bg-paymee-gradient shadow-lg hover:scale-[0.99] transition">
       Simular Pago Exitoso
     </button>
   </div>
@@ -307,14 +305,14 @@
       <h2 class="text-3xl font-bold text-gray-800">¡Cobro Exitoso!</h2>
       <h3 class="text-5xl font-extrabold text-gray-800 mt-4" id="success-amount-display">$ 0,00</h3>
       <p class="text-gray-500 mt-2">Monto acreditado a tu cuenta.</p>
-      <button onclick="renderScreen('receipt')" class="w-full mt-10 py-3 text-paymee-cyan font-semibold rounded-xl border border-paymee-cyan hover:bg-paymee-cyan/10 transition">Ver Comprobante</button>
-      <button onclick="renderScreen('home-dashboard')" class="w-full mt-3 py-3 text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition">Volver al Inicio</button>
+      <button onclick="changeRoute('receipt')" class="w-full mt-10 py-3 text-paymee-cyan font-semibold rounded-xl border border-paymee-cyan hover:bg-paymee-cyan/10 transition">Ver Comprobante</button>
+      <button onclick="changeRoute('home-dashboard')" class="w-full mt-3 py-3 text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition">Volver al Inicio</button>
     </div>
   </div>
 
   <div id="receipt" class="app-screen p-6 overflow-y-auto">
     <div class="flex items-center w-full mb-8 pt-4">
-      <button onclick="renderScreen('success')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+      <button onclick="changeRoute('success')" class="text-gray-600 hover:text-gray-900 tap-effect"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
       <h2 class="text-xl font-bold text-gray-800 ml-4">Comprobante Digital</h2>
     </div>
     <div class="paymee-card p-6 border-t-8 border-paymee-cyan">
@@ -323,9 +321,9 @@
         <p class="text-sm text-gray-500">Monto Total</p>
       </div>
       <div class="space-y-3">
-        <div class="flex justify-between text-sm text-gray-600"><span>Fecha</span><span id="receipt-date">10/10/2025 10:30 AM</span></div>
-        <div class="flex justify-between text-sm text-gray-600"><span>Método</span><span id="receipt-method">Tap-to-Phone</span></div>
-        <div class="flex justify-between text-sm text-gray-600"><span>Cód. de Transacción</span><span id="receipt-code">PYM-8374829X</span></div>
+        <div class="flex justify-between text-sm text-gray-600"><span>Fecha</span><span id="receipt-date">--/--/--</span></div>
+        <div class="flex justify-between text-sm text-gray-600"><span>Método</span><span id="receipt-method">--</span></div>
+        <div class="flex justify-between text-sm text-gray-600"><span>Cód. de Transacción</span><span id="receipt-code">--</span></div>
         <div class="flex justify-between text-sm text-gray-600"><span>Comisión (3%)</span><span class="text-red-500" id="receipt-fee">$ 0,00</span></div>
         <div class="flex justify-between text-lg font-bold text-gray-800 pt-3 border-t border-dashed border-gray-200">
           <span>Monto Acreditado</span><span id="receipt-net">$ 0,00</span>
@@ -354,7 +352,6 @@
 
   <div id="linked-account" class="app-screen p-6 overflow-y-auto">
     <h2 class="text-2xl font-bold text-gray-800 mb-6 pt-4">Mi Cuenta</h2>
-
     <h4 class="text-lg font-semibold text-gray-800 mb-3">Cuenta de Depósito</h4>
     <div class="paymee-card p-4 mb-6">
       <p class="text-sm text-gray-500">Banco</p>
@@ -362,13 +359,11 @@
       <p class="text-sm text-gray-500 mt-3">CBU / Alias</p>
       <p class="text-md font-semibold text-gray-800">12345678901234567890 (PAYMEE.AXEL)</p>
     </div>
-
     <h4 class="text-lg font-semibold text-gray-800 mb-3">Soporte</h4>
     <div class="paymee-card p-4 mb-6 space-y-3">
       <p class="text-sm text-gray-600">¿Necesitas ayuda con un cobro o tus datos? Contáctanos.</p>
       <button class="w-full py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:opacity-90 transition">Chatear con Soporte</button>
     </div>
-
     <button class="w-full mt-4 py-3 text-red-600 font-semibold rounded-xl hover:bg-red-50 transition border border-red-200">
         Cerrar Sesión
     </button>
@@ -380,23 +375,23 @@
   </div>
 
   <div class="paymee-navbar" id="main-navbar">
-    <button onclick="renderScreen('home-dashboard')" data-screen="home-dashboard" class="nav-item flex flex-col items-center p-2 tap-effect">
+    <button onclick="changeRoute('home-dashboard')" data-screen="home-dashboard" class="nav-item flex flex-col items-center p-2 tap-effect">
       <svg class="w-6 h-6 text-paymee-cyan nav-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
       <span class="text-xs text-paymee-cyan mt-1">Inicio</span>
     </button>
-    <button onclick="renderScreen('collect-amount')" data-screen="collect-amount" class="nav-item flex flex-col items-center p-2 tap-effect">
+    <button onclick="changeRoute('collect-amount')" data-screen="collect-amount" class="nav-item flex flex-col items-center p-2 tap-effect">
       <svg class="w-6 h-6 text-gray-400 nav-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zM6 8a2 2 0 012-2h4a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2V8z"/></svg>
       <span class="text-xs text-gray-400 mt-1">Cobrar</span>
     </button>
-    <button onclick="renderScreen('history')" data-screen="history" class="nav-item flex flex-col items-center p-2 tap-effect">
+    <button onclick="changeRoute('history')" data-screen="history" class="nav-item flex flex-col items-center p-2 tap-effect">
       <svg class="w-6 h-6 text-gray-400 nav-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm6 12a1 1 0 100-2 1 1 0 000 2zM9 9a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>
       <span class="text-xs text-gray-400 mt-1">Historial</span>
     </button>
-    <button onclick="renderScreen('daily-summary')" data-screen="daily-summary" class="nav-item flex flex-col items-center p-2 tap-effect">
+    <button onclick="changeRoute('daily-summary')" data-screen="daily-summary" class="nav-item flex flex-col items-center p-2 tap-effect">
       <svg class="w-6 h-6 text-gray-400 nav-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
       <span class="text-xs text-gray-400 mt-1">Resumen</span>
     </button>
-    <button onclick="renderScreen('linked-account')" data-screen="linked-account" class="nav-item flex flex-col items-center p-2 tap-effect">
+    <button onclick="changeRoute('linked-account')" data-screen="linked-account" class="nav-item flex flex-col items-center p-2 tap-effect">
       <svg class="w-6 h-6 text-gray-400 nav-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM9.5 12a5.5 5.5 0 00-5.46 6.02L4 18h12c0-.32-.04-.64-.14-.98A5.5 5.5 0 0010 12h-.5z"/></svg>
       <span class="text-xs text-gray-400 mt-1">Cuenta</span>
     </button>
@@ -405,9 +400,8 @@
 
 <script>
   // --- ESTADO / ELEMENTOS ---
-  let currentScreen = 'splash-screen';
+  let currentScreen = 'splash'; 
   let amount = '000'; // centavos en string
-  let isHashNavigation = false; // para evitar loops entre renderScreen y hashchange
 
   const navbar = document.getElementById('main-navbar');
   const navItems = document.querySelectorAll('.nav-item');
@@ -416,9 +410,7 @@
   const formatAmount = (value) => {
     const numberValue = parseFloat(value) || 0;
     return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: 2
+      style: 'currency', currency: 'ARS', minimumFractionDigits: 2
     }).format(numberValue);
   };
 
@@ -429,11 +421,10 @@
       if (displayValue.length < 3) {
         displayValue = '000'.substring(0, 3 - displayValue.length) + displayValue;
       }
-      const formatted = displayValue.slice(0, -2) + ',' + displayValue.slice(-2);
+      const formatted = displayValue.slice(0,-2) + ',' + displayValue.slice(-2);
       let integerPart = formatted.slice(0, formatted.length - 3);
       const decimalPart = formatted.slice(-2);
-      integerPart = integerPart.replace(/^0+/, '');
-      if (integerPart === '') integerPart = '0';
+      integerPart = integerPart.replace(/^0+/, ''); if (integerPart === '') integerPart = '0';
       integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
       display.textContent = `$ ${integerPart},${decimalPart}`;
     }
@@ -448,7 +439,7 @@
   const handleKeyPress = (value) => {
     let cleanAmount = amount.replace(/[^\d]/g, '');
     if (value === 'delete') {
-      cleanAmount = cleanAmount.length > 1 ? cleanAmount.slice(0, -1) : '0';
+      cleanAmount = cleanAmount.length > 1 ? cleanAmount.slice(0,-1) : '0';
     } else if (value.match(/[0-9]/)) {
       if (cleanAmount.length < 12) {
         cleanAmount = (cleanAmount === '0') ? value : cleanAmount + value;
@@ -464,15 +455,14 @@
     const total = rawValue;
     const fee = total * FEE_RATE;
     const net = total - fee;
-
-    let method = 'Desconocido';
+    
+    let method = 'Tap-to-Phone (NFC)'; 
     if (currentScreen === 'qr-sim') method = 'QR Interoperable';
-    else if (currentScreen === 'nfc-sim') method = 'Tap-to-Phone (NFC)';
 
     return {
       total: formatAmount(total.toFixed(2)),
-      fee: formatAmount(fee.toFixed(2)),
-      net: formatAmount(net.toFixed(2)),
+      fee:   formatAmount(fee.toFixed(2)),
+      net:   formatAmount(net.toFixed(2)),
       method: method,
       code: 'PYM-' + Math.floor(Math.random() * 90000000 + 10000000)
     };
@@ -482,10 +472,10 @@
   //  HISTORIAL DINÁMICO
   // =====================
   const transactions = [
-    { id: 'TX-001', amount: 1245000, method: 'NFC', network: 'Visa Débito',        time: '12:35', status: 'approved' },
-    { id: 'TX-002', amount: 2320000, method: 'QR',  network: 'Billetera Cliente',  time: '11:02', status: 'approved' },
-    { id: 'TX-003', amount:  875000, method: 'QR',  network: 'MercadoPago',        time: '10:41', status: 'refunded' },
-    { id: 'TX-004', amount: 1450000, method: 'NFC', network: 'Mastercard Crédito', time: '09:24', status: 'approved' },
+    { id: 'TX-001', amount: 1245000, method: 'NFC', network: 'Visa Débito',         time: '12:35', status: 'approved' },
+    { id: 'TX-002', amount: 2320000, method: 'QR',  network: 'Billetera Cliente',   time: '11:02', status: 'approved' },
+    { id: 'TX-003', amount:  875000, method: 'QR',  network: 'MercadoPago',         time: '10:41', status: 'refunded' },
+    { id: 'TX-004', amount: 1450000, method: 'NFC', network: 'Mastercard Crédito',  time: '09:24', status: 'approved' },
   ];
 
   const METHOD_ICONS = {
@@ -494,10 +484,8 @@
   };
 
   function statusBadge(status) {
-    if (status === 'approved')
-      return `<span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">Aprobado</span>`;
-    if (status === 'refunded')
-      return `<span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">Reembolsado</span>`;
+    if (status === 'approved') return `<span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">Aprobado</span>`;
+    if (status === 'refunded') return `<span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">Reembolsado</span>`;
     return `<span class="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800">Pendiente</span>`;
   }
 
@@ -506,9 +494,7 @@
     const totalEl   = document.getElementById('history-total');
     if (!container || !totalEl) return;
 
-    const totalApproved = list
-      .filter(t => t.status === 'approved')
-      .reduce((acc, tx) => acc + tx.amount, 0) / 100;
+    const totalApproved = list.filter(t => t.status === 'approved').reduce((acc, tx) => acc + tx.amount, 0) / 100;
 
     container.innerHTML = list.map(tx => {
       const icon   = METHOD_ICONS[tx.method] || '';
@@ -528,180 +514,113 @@
           ${statusBadge(tx.status)}
         </div>`;
     }).join('');
-
     totalEl.textContent = formatAmount(totalApproved.toFixed(2));
-
-    document.querySelectorAll('.history-chips button').forEach(btn => {
-      btn.classList.remove('border-paymee-cyan', 'bg-paymee-cyan/20', 'text-paymee-cyan');
-      btn.classList.add('border-gray-200', 'bg-white', 'hover:bg-gray-50', 'text-gray-700');
-    });
-    document.getElementById('btnToday').classList.add('border-paymee-cyan', 'bg-paymee-cyan/20', 'text-paymee-cyan');
-    document.getElementById('btnToday').classList.remove('border-gray-200', 'bg-white', 'hover:bg-gray-50', 'text-gray-700');
   }
 
-  function exportHistoryToCSV(list) {
-    const header = ['id','monto_AR','metodo','red','hora','estado'];
-    const rows = list.map(tx => ([
-      tx.id, (tx.amount/100).toFixed(2).replace('.',','), tx.method, tx.network, tx.time, tx.status
-    ]));
-    const csv = [header, ...rows]
-      .map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(','))
-      .join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url  = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `historial_cobros_${new Date().toISOString().slice(0,10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    alert('Exportando Historial a CSV...');
-  }
+  function initHistory() { renderHistory(transactions); }
 
-  function initHistory() {
-    renderHistory(transactions);
-    const btnToday   = document.getElementById('btnToday');
-    const btnFilters = document.getElementById('btnFilters');
-    const btnExport  = document.getElementById('btnExport');
+  // =====================
+  //  ROUTING & NAVEGACIÓN
+  // =====================
 
-    btnToday && btnToday.addEventListener('click', () => {
-      renderHistory(transactions);
-      alert('Mostrando transacciones de Hoy.');
-    });
-    btnFilters && btnFilters.addEventListener('click', (e) => {
-      const onlyApproved = transactions.filter(t => t.status === 'approved');
-      renderHistory(onlyApproved);
-      alert('Filtro aplicado: Mostrando solo transacciones APROBADAS.');
+  const changeRoute = (targetId) => {
+    window.location.hash = targetId;
+  };
 
-      document.querySelectorAll('.history-chips button').forEach(btn => {
-        btn.classList.remove('border-paymee-cyan', 'bg-paymee-cyan/20', 'text-paymee-cyan');
-        btn.classList.add('border-gray-200', 'bg-white', 'hover:bg-gray-50', 'text-gray-700');
-      });
-      e.currentTarget.classList.add('border-paymee-coral', 'bg-paymee-coral/20', 'text-paymee-coral');
-      e.currentTarget.classList.remove('border-gray-200', 'bg-white', 'hover:bg-gray-50', 'text-gray-700');
-    });
-    btnExport && btnExport.addEventListener('click', () => exportHistoryToCSV(transactions));
-  }
-
-  // --- NAVEGACIÓN ---
   const updateNavHighlight = (targetId) => {
     navItems.forEach(item => {
       const icon = item.querySelector('svg');
       const text = item.querySelector('span');
       const targetScreenName = item.getAttribute('data-screen');
       const isActive = (targetId === targetScreenName);
-
+      
       if (isActive) {
-        icon.classList.replace('text-gray-400', 'text-paymee-cyan');
-        text.classList.replace('text-gray-400', 'text-paymee-cyan');
+        icon.classList.remove('text-gray-400');
+        icon.classList.add('text-paymee-cyan');
+        text.classList.remove('text-gray-400');
+        text.classList.add('text-paymee-cyan');
       } else {
-        icon.classList.replace('text-paymee-cyan', 'text-gray-400');
-        text.classList.replace('text-paymee-cyan', 'text-gray-400');
+        icon.classList.remove('text-paymee-cyan');
+        icon.classList.add('text-gray-400');
+        text.classList.remove('text-paymee-cyan');
+        text.classList.add('text-gray-400');
       }
     });
   };
 
-  // AHORA renderScreen TAMBIÉN OPCIONALMENTE ACTUALIZA EL HASH
-  const renderScreen = (targetId, updateHash = true) => {
-    const current = document.getElementById(currentScreen);
-    const target  = document.getElementById(targetId);
-    if (!target) return;
+  const updateUI = (targetId) => {
+    const targetElement = document.getElementById(targetId);
 
-    // Actualizar URL (hash) si corresponde
-    if (updateHash && !isHashNavigation) {
-      window.location.hash = targetId;
+    if (!targetElement) {
+        console.warn(`Ruta desconocida: ${targetId}. Redirigiendo a home.`);
+        window.location.hash = 'home-dashboard';
+        return;
     }
 
-    // Mostrar / ocultar navbar
+    const currentElement = document.getElementById(currentScreen);
+    if (currentElement) currentElement.classList.remove('active');
+
+    targetElement.classList.add('active');
+    currentScreen = targetId;
+
     const showNavbar = ['home-dashboard','collect-amount','history','daily-summary','linked-account'].includes(targetId);
     navbar.style.display = showNavbar ? 'flex' : 'none';
-
     updateNavHighlight(targetId);
 
-    const amountInPesos = (parseFloat(amount) / 100).toFixed(2);
+    const amountInPesos = (parseFloat(amount)/100).toFixed(2);
     const displayValue = formatAmount(amountInPesos);
 
-    if (targetId === 'collect-method') {
-      document.getElementById('method-amount-display').textContent = displayValue;
-    } else if (targetId === 'qr-sim') {
-      document.getElementById('qr-amount-display').textContent = displayValue;
-    } else if (targetId === 'nfc-sim') {
-      document.getElementById('nfc-amount-display').textContent = displayValue;
-    } else if (targetId === 'success') {
-      document.getElementById('success-amount-display').textContent = displayValue;
-    } else if (targetId === 'receipt') {
+    if (targetId === 'collect-method')      document.getElementById('method-amount-display').textContent = displayValue;
+    else if (targetId === 'qr-sim')         document.getElementById('qr-amount-display').textContent = displayValue;
+    else if (targetId === 'nfc-sim')        document.getElementById('nfc-amount-display').textContent = displayValue;
+    else if (targetId === 'success')        document.getElementById('success-amount-display').textContent = displayValue;
+    else if (targetId === 'receipt') {
       const receipt = calculateReceipt(amount);
       document.getElementById('receipt-total').textContent  = receipt.total;
       document.getElementById('receipt-fee').textContent    = receipt.fee;
       document.getElementById('receipt-net').textContent    = receipt.net;
       document.getElementById('receipt-method').textContent = receipt.method;
       document.getElementById('receipt-code').textContent   = receipt.code;
-      document.getElementById('receipt-date').textContent   =
-        new Date().toLocaleString('es-AR', {
-          day:'2-digit', month:'2-digit', year:'numeric',
-          hour:'2-digit', minute:'2-digit', hour12:true
-        });
+      document.getElementById('receipt-date').textContent   = new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
     } else if (targetId === 'collect-amount') {
-      updateDisplay();
+      updateDisplay(); 
     }
 
-    if (current) current.classList.remove('active');
-    target.classList.add('active');
-    currentScreen = targetId;
-
     if (targetId === 'home-dashboard') {
-      amount = '000';
-      updateDisplay();
+        amount = '000';
+        updateDisplay();
     }
   };
 
-  // Manejo del cambio de hash (botón atrás/adelante, link directo, etc.)
   window.addEventListener('hashchange', () => {
-    const hash = window.location.hash.replace('#','') || 'home-dashboard';
-    if (!document.getElementById(hash)) return;
-    isHashNavigation = true;
-    renderScreen(hash, false); // NO volvemos a setear el hash
-    isHashNavigation = false;
+    const hash = window.location.hash.replace('#', '');
+    if (hash) updateUI(hash);
   });
 
   // --- INIT ---
   document.addEventListener('DOMContentLoaded', () => {
-    // Teclado numérico
-    document.querySelectorAll('.key-button').forEach(btn => {
-      btn.addEventListener('click', () => {
+    document.querySelectorAll('.key-button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
         const value = btn.getAttribute('data-value') || btn.getAttribute('data-action');
         handleKeyPress(value);
       });
     });
 
-    navbar.style.display = 'none';
     updateDisplay();
     initHistory();
 
-    const initialHash = window.location.hash.replace('#','');
+    const initialHash = window.location.hash.replace('#', '');
 
     if (initialHash && document.getElementById(initialHash)) {
-      // Si viene con hash, saltamos el splash y vamos directo ahí
-      document.getElementById('splash-screen').classList.remove('active');
-      currentScreen = 'splash-screen';
-      isHashNavigation = true;
-      renderScreen(initialHash, false);
-      isHashNavigation = false;
+        document.getElementById('splash').classList.remove('active');
+        updateUI(initialHash);
     } else {
-      // Splash -> Welcome (como antes)
-      setTimeout(() => {
-        document.getElementById('splash-screen').classList.remove('active');
-        document.getElementById('splash-screen').style.transform = 'translateX(-100%)';
-        document.getElementById('welcome').classList.add('active');
-        document.getElementById('welcome').style.transform = 'translateX(0)';
-        currentScreen = 'welcome';
-        // actualizamos hash para que también tenga URL
-        window.location.hash = 'welcome';
-      }, 1500);
+        navbar.style.display = 'none';
+        setTimeout(() => {
+             window.location.hash = 'welcome';
+        }, 1500);
     }
   });
 </script>
-
 </body>
 </html>
