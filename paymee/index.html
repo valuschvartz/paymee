@@ -154,10 +154,13 @@
   <div id="splash" class="app-screen active !bg-white">
     <div class="flex flex-col items-center justify-center h-full bg-paymee-gradient">
       <div class="bg-white p-6 rounded-3xl shadow-xl">
-        <svg class="w-24 h-24 text-paymee-coral animate-pulse-logo" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M4 4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4z"/>
-        </svg>
-      </div>
+  <img
+    src="logo.png"
+    alt="Paymee Logo"
+    class="w-24 h-24 object-contain animate-pulse-logo"
+  />
+</div>
+
       <div class="paymee-logo-text mt-6">Paymee</div>
       <div class="text-white text-sm font-light tracking-widest mt-2 opacity-90">COBROS FÁCILES. SIN CONTACTO.</div>
     </div>
@@ -166,9 +169,12 @@
   <!-- WELCOME -->
   <div id="welcome" class="app-screen justify-center items-center">
     <div class="flex flex-col items-center p-8 text-center w-full">
-      <svg class="w-20 h-20 text-paymee-coral" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M4 4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4z"/>
-      </svg>
+      <img
+  src="logo.png"
+  alt="Paymee Logo"
+  class="w-20 h-20 object-contain"
+/>
+
       <h1 class="text-3xl font-bold mt-8 text-gray-800">¡Bienvenido a Paymee!</h1>
       <p class="text-gray-500 mt-4 px-4">La manera más rápida y segura de aceptar pagos con QR y Tap-to-Phone.</p>
       <button onclick="changeRoute('home-dashboard')" class="w-full mt-12 py-3 text-white font-semibold rounded-xl bg-paymee-gradient shadow-lg shadow-pink-300/50 hover:scale-[0.99] transition duration-200 tap-effect max-w-sm">
